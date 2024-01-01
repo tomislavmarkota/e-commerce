@@ -1,4 +1,7 @@
 
+using e_commerce.Server.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace e_commerce.Server
 {
     public class Program
@@ -8,6 +11,10 @@ namespace e_commerce.Server
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+       
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseNpgsql(connectionString));
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
