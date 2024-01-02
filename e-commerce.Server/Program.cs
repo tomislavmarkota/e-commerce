@@ -1,5 +1,8 @@
 
 using e_commerce.Server.Data;
+using e_commerce.Server.Data.Interface;
+using e_commerce.Server.Repository;
+using e_commerce.Server.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace e_commerce.Server
@@ -15,6 +18,9 @@ namespace e_commerce.Server
        
             builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseNpgsql(connectionString));
+
+            builder.Services.AddScoped<PasswordHashService>();
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

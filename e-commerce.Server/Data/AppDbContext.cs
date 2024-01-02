@@ -8,5 +8,6 @@ namespace e_commerce.Server.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
