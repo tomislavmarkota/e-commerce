@@ -2,7 +2,7 @@
 using e_commerce.Server.Data.Interface;
 using e_commerce.Server.Models;
 using e_commerce.Server.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace e_commerce.Server.Repository
 {
@@ -10,14 +10,20 @@ namespace e_commerce.Server.Repository
     {
         private readonly AppDbContext _context;
         private readonly PasswordHashService _passwordHashService;
-        public AuthRepository(AppDbContext context, PasswordHashService passwordHashService) { 
+        public AuthRepository(AppDbContext context, PasswordHashService passwordHashService)
+        {
             _context = context;
             _passwordHashService = passwordHashService ?? throw new ArgumentNullException(nameof(passwordHashService));
         }
 
-        public async Task<IEnumerable<User>> GetUsers() {  return _context.Users.ToList(); }
+        public async Task<IEnumerable<User>> GetUsers() { return _context.Users.ToList(); }
 
-        public User? GetUserById(int id) { return _context.Users.SingleOrDefault((user) => user.Id == id); }
+        public async Task<User> GetUserById(int id) { return await _context.Users.SingleOrDefaultAsync((user) => user.Id == id); }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            return await _context.Users.SingleOrDefaultAsync(user => user.Email == email);
+        }
 
         public async Task<User> CreateUser(string email, string password)
         {
