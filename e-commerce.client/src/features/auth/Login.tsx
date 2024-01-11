@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useRef, useState, useEffect } from 'react'
 
 //import { useDispatch } from 'react-redux';
 //import { setCredentials } from './authSlice';
-import { useLoginMutation, useUsersQuery } from '../auth/authApiSlice'
+import { useLoginMutation, useLazyUsersQuery } from '../auth/authApiSlice'
+import { useDispatch, useSelector } from 'react-redux';
+import { selectCurrentToken, setCredentials } from './authSlice';
 
 function Login() {
     const userRef = useRef<HTMLInputElement>();
@@ -11,20 +14,34 @@ function Login() {
     const [email, setEmail] = useState('');
     const [pwd, setPwd] = useState('');
     const [, setErrMsg] = useState('');
-
+    const [usersData, setUserData] = useState<any>();
     const [login, { isLoading }] = useLoginMutation();
-    const { data: usersData, refetch: fetchUsers } = useUsersQuery({});
-    // const dispatch = useDispatch();
+    //const [users] = useLazyUsersQuery({});
+    const [trigger, result] = useLazyUsersQuery();
+    const refreshToken = useSelector(selectCurrentToken);
+    console.log("refreshToken",refreshToken)
+    useEffect(() => {
+        if (result && result.data) {
+            setUserData([result.data]);
+        }
+        console.log(result)
+    }, [result])
 
+    const dispatch = useDispatch();
+    console.log("usersData", usersData)
     const handleGetUsersClick = async () => {
         try {
-            const usersData = await fetchUsers(); // Trigger refetch to get users
-            console.log(usersData);
+            await trigger(null, false); 
+            console.log("result", result)
+       
         } catch (err) {
             console.log(err);
         }
     };
-    console.log(usersData)
+
+   
+  
+  
     useEffect(() => {
         if (userRef && userRef.current) userRef.current.focus();
     }, [])
@@ -39,6 +56,7 @@ function Login() {
         try {
             const userData = await login({ email, password: pwd }).unwrap();
             console.log(userData);
+            dispatch(setCredentials({token: userData.refresh }))
         } catch (err) {
             console.log(err)
         }

@@ -122,8 +122,12 @@ namespace e_commerce.Server.Controllers
                 return Ok(new
                 {
                     message = "Login successful",
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    refresh = refreshToken
+                    user = new UserResponseModel()
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        RefreshToken = refreshToken
+                    }
                 });
             }
 
@@ -141,45 +145,55 @@ namespace e_commerce.Server.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefresModel model)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Refresh([FromBody] RefreshModel refresh)
         {
             _logger.LogInformation("Refresh called");
-            var principal = GetPrincipalFromExpiredToken(model.AccesToken);
+            string? refreshTokenFromCookie = Request.Cookies["jwt"];
 
-            if (principal?.Identity.Name is null)
+            if (refreshTokenFromCookie != null)
             {
-                return Unauthorized();
-            }
+                var principal = GetPrincipalFromExpiredToken(refreshTokenFromCookie);
 
-            var user = await _authRepository.GetUserByEmail(principal.Identity.Name);
+                if (principal?.Identity.Name is null)
+                {
+                    return Unauthorized();
+                }
 
-            if (user is null || user.RefreshToken != model.RefreshToken || user.RefreshExpiry < DateTime.UtcNow)
-            {
-                return Unauthorized();
-            }
+                var user = await _authRepository.GetUserByEmail(principal.Identity.Name);
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                if (user is null || user.RefreshToken != refresh.RefreshToken || user.RefreshExpiry < DateTime.UtcNow)
+                {
+                    return Unauthorized();
+                }
 
-            var claims = new[]
-               {
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var claims = new[]
+                   {
                     new Claim(ClaimTypes.Name, user.Email)
                 };
 
-            var token = new JwtSecurityToken(
-                  issuer: _config["Jwt:Issuer"],
-                  audience: _config["Jwt:Audience"],
-                  claims: claims,
-                  expires: DateTime.Now.AddMinutes(1),
-                  signingCredentials: creds
-              );
+                var token = new JwtSecurityToken(
+                      issuer: _config["Jwt:Issuer"],
+                      audience: _config["Jwt:Audience"],
+                      claims: claims,
+                      expires: DateTime.Now.AddMinutes(1),
+                      signingCredentials: creds
+                  );
 
-            return Ok(new
-            {
-                message = "Login successful",
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                refresh = model.RefreshToken
-            });
+                return Ok(new
+                {
+                    message = "Login successful",
+                    token = new JwtSecurityTokenHandler().WriteToken(token),
+                    refresh = refresh.RefreshToken
+                });
+            }
+
+            return BadRequest("Access token is missing!");
 
         }
 
@@ -203,7 +217,7 @@ namespace e_commerce.Server.Controllers
 
             _context.SaveChanges();
 
-            return Ok();
+            return Ok("Refresh token revoked!");
         }
 
         private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)

@@ -8,7 +8,8 @@ import authReducer from "../features/auth/authSlice";
 
 export const store = configureStore({
     reducer: {
-        auth: authReducer
+        auth: authReducer,
+        [apiSlice.reducerPath]: apiSlice.reducer
     },
     middleware: (getDefaultMiddleware): any => getDefaultMiddleware().concat(apiSlice.middleware),  
     // remove devtools in production !!!!

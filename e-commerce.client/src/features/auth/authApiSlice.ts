@@ -18,5 +18,5 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useLoginMutation,
-    useUsersQuery
+    useLazyUsersQuery
 } = authApiSlice
