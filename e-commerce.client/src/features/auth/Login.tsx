@@ -6,7 +6,7 @@ import { useRef, useState, useEffect } from 'react'
 //import { setCredentials } from './authSlice';
 import { useLoginMutation, useLazyUsersQuery } from '../auth/authApiSlice'
 import { useDispatch, useSelector } from 'react-redux';
-import { selectCurrentToken, setCredentials } from './authSlice';
+import { selectCurrentUser, selectCurrentToken, setCredentials } from './authSlice';
 
 function Login() {
     const userRef = useRef<HTMLInputElement>();
@@ -19,6 +19,7 @@ function Login() {
     //const [users] = useLazyUsersQuery({});
     const [trigger, result] = useLazyUsersQuery();
     const refreshToken = useSelector(selectCurrentToken);
+    const user = useSelector(selectCurrentUser);
     console.log("refreshToken",refreshToken)
     useEffect(() => {
         if (result && result.data) {
@@ -29,6 +30,7 @@ function Login() {
 
     const dispatch = useDispatch();
     console.log("usersData", usersData)
+    console.log("user", user)
     const handleGetUsersClick = async () => {
         try {
             await trigger(null, false); 
@@ -56,7 +58,7 @@ function Login() {
         try {
             const userData = await login({ email, password: pwd }).unwrap();
             console.log(userData);
-            dispatch(setCredentials({token: userData.refresh }))
+            dispatch(setCredentials({ user: userData.user }))
         } catch (err) {
             console.log(err)
         }
