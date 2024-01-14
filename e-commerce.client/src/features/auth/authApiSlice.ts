@@ -11,6 +11,21 @@ export const authApiSlice = apiSlice.injectEndpoints({
         }),
         users: builder.query({
             query: () => ({ url: '/Auth/users', credentials: 'include' })
+        }),
+        refresh: builder.mutation({
+            query: () => ({
+                url: '/Auth/refresh',
+                method: 'GET'
+            }),
+            async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    console.log(data);
+                    
+                } catch (err) {
+                    console.log(err)
+                }
+            }
         })
     })
 })
@@ -18,5 +33,6 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 export const {
     useLoginMutation,
-    useLazyUsersQuery
+    useLazyUsersQuery,
+    useRefreshMutation
 } = authApiSlice

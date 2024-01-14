@@ -7,10 +7,10 @@ import { useRef, useState, useEffect } from 'react'
 import { useLoginMutation, useLazyUsersQuery } from '../auth/authApiSlice'
 import { useDispatch, useSelector } from 'react-redux';
 import { selectCurrentUser, selectCurrentToken, setCredentials } from './authSlice';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const userRef = useRef<HTMLInputElement>();
-    // const errRef = useRef();
     const [email, setEmail] = useState('');
     const [pwd, setPwd] = useState('');
     const [, setErrMsg] = useState('');
@@ -20,6 +20,7 @@ function Login() {
     const [trigger, result] = useLazyUsersQuery();
     const refreshToken = useSelector(selectCurrentToken);
     const user = useSelector(selectCurrentUser);
+    const navigate = useNavigate();
     console.log("refreshToken",refreshToken)
     useEffect(() => {
         if (result && result.data) {
@@ -58,7 +59,9 @@ function Login() {
         try {
             const userData = await login({ email, password: pwd }).unwrap();
             console.log(userData);
-            dispatch(setCredentials({ user: userData.user }))
+            localStorage.setItem("refresh", userData.user.refreshToken);
+            dispatch(setCredentials({ user: userData.user }));
+            navigate('/admin')
         } catch (err) {
             console.log(err)
         }
@@ -80,6 +83,7 @@ function Login() {
                 <input type="text" name="password" onChange={handleInputChange} />
                 <input type="submit" value="Login" />
             </form>
+            <a href={"/admin"}>Admin route protected</a>
             <button onClick={() => handleGetUsersClick() }></button>
         </>
        

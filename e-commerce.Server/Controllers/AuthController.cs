@@ -104,7 +104,7 @@ namespace e_commerce.Server.Controllers
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true, // Ensure the cookie is accessible only through HTTP
-                    Expires = DateTime.UtcNow.AddMinutes(1),
+                    Expires = DateTime.UtcNow.AddMinutes(15),
                     Secure = true, // Enable for HTTPS only
                     SameSite = SameSiteMode.Strict
                 };
@@ -119,6 +119,8 @@ namespace e_commerce.Server.Controllers
 
                 _context.SaveChanges();
 
+                var userRoles = _context.UserRoles.Where(role => role.UserId == user.Id).Select(ur => ur.Role.Name).ToList();
+
                 return Ok(new
                 {
                     message = "Login successful",
@@ -126,7 +128,8 @@ namespace e_commerce.Server.Controllers
                     {
                         Id = user.Id,
                         Email = user.Email,
-                        RefreshToken = refreshToken
+                        RefreshToken = refreshToken,
+                        Roles = userRoles
                     }
                 });
             }
@@ -144,18 +147,24 @@ namespace e_commerce.Server.Controllers
             return Ok("Works !");
         }
 
-        [HttpPost("refresh")]
+        [HttpGet("refresh")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> Refresh([FromBody] RefreshModel refresh)
+        public async Task<IActionResult> Refresh()
         {
             _logger.LogInformation("Refresh called");
-            string? refreshTokenFromCookie = Request.Cookies["jwt"];
+            string? accessToken = Request.Cookies["jwt"];
 
-            if (refreshTokenFromCookie != null)
+            string? refreshToken = Request.Headers["Authorization"];
+
+            if (string.IsNullOrEmpty(refreshToken))
             {
-                var principal = GetPrincipalFromExpiredToken(refreshTokenFromCookie);
+                return BadRequest("Refresh token is missing!");
+            }
+            if (accessToken != null)
+            {
+                var principal = GetPrincipalFromExpiredToken(accessToken);
 
                 if (principal?.Identity.Name is null)
                 {
@@ -164,11 +173,10 @@ namespace e_commerce.Server.Controllers
 
                 var user = await _authRepository.GetUserByEmail(principal.Identity.Name);
 
-                if (user is null || user.RefreshToken != refresh.RefreshToken || user.RefreshExpiry < DateTime.UtcNow)
+                if (user is null || user.RefreshToken != refreshToken || user.RefreshExpiry < DateTime.UtcNow)
                 {
                     return Unauthorized();
                 }
-
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -185,11 +193,24 @@ namespace e_commerce.Server.Controllers
                       signingCredentials: creds
                   );
 
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var tokenString = tokenHandler.WriteToken(token);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true, // Ensure the cookie is accessible only through HTTP
+                    Expires = DateTime.UtcNow.AddMinutes(15),
+                    Secure = true, // Enable for HTTPS only
+                    SameSite = SameSiteMode.Strict
+                };
+
+                // Set the token as HTTP-only cookie
+                Response.Cookies.Append("jwt", tokenString, cookieOptions);
+
                 return Ok(new
                 {
                     message = "Login successful",
                     token = new JwtSecurityTokenHandler().WriteToken(token),
-                    refresh = refresh.RefreshToken
+                    refresh = refreshToken
                 });
             }
 

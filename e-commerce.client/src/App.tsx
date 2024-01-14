@@ -2,6 +2,8 @@ import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } 
 import './App.css';
 import BasicLayout from './layouts/BasicLayout';
 import Login from './features/auth/Login';
+import AuthLayout from './layouts/AuthLayout';
+import PersistLogin from './layouts/PersistLogin';
 
 
 
@@ -10,12 +12,20 @@ function App() {
         createRoutesFromElements(
             <Route element={<BasicLayout />}>
               
-
+                <Route path="login" element={<Login />} />
                 <Route path="/">
                     <Route index element={<div>dashboard</div>} /> 
                 </Route>
-                <Route path="login" element={<Login />} />
-                <Route path="admin" element={<div>admin</div> }></Route>
+                <Route>
+                </Route>
+                <Route element={<PersistLogin />}>
+                    <Route element={<AuthLayout />}>
+                        <Route path="admin" element={<div>admin</div>} />
+                        <Route path="users" element={<div>admin</div>} />
+                    </Route>
+                </Route>
+            
+              
             </Route>
         )
     );
