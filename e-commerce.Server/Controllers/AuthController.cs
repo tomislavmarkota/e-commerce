@@ -198,19 +198,25 @@ namespace e_commerce.Server.Controllers
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true, // Ensure the cookie is accessible only through HTTP
-                    Expires = DateTime.UtcNow.AddMinutes(15),
+                    Expires = DateTime.UtcNow.AddMinutes(2),
                     Secure = true, // Enable for HTTPS only
                     SameSite = SameSiteMode.Strict
                 };
+
+                var userRoles = _context.UserRoles.Where(role => role.UserId == user.Id).Select(ur => ur.Role.Name).ToList();
 
                 // Set the token as HTTP-only cookie
                 Response.Cookies.Append("jwt", tokenString, cookieOptions);
 
                 return Ok(new
                 {
-                    message = "Login successful",
-                    token = new JwtSecurityTokenHandler().WriteToken(token),
-                    refresh = refreshToken
+                    user = new UserResponseModel()
+                    {
+                        Id = user.Id,
+                        Email = user.Email,
+                        RefreshToken = refreshToken,
+                        Roles = userRoles
+                    }
                 });
             }
 

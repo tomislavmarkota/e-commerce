@@ -11,5 +11,6 @@
   <ItemGroup>
     <Folder Include="src\app\api\" />
     <Folder Include="src\hooks\" />
+    <Folder Include="src\components\" />
   </ItemGroup>
 </Project>

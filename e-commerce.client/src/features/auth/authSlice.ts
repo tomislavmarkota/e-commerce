@@ -1,10 +1,13 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { RootState } from '../../app/store';
 
-type User = {
+export type Roles = "ADMIN" | "EDITOR" | "USER";
+
+export type User = {
     id: number | null;
     email: string | null;
     refreshToken: string | null;
+    roles: Roles[];
 }
 
 type State = {
@@ -15,7 +18,8 @@ const state: State = {
     user: {
         id: null,
         email: null,
-        refreshToken: null
+        refreshToken: null,
+        roles: []
     } 
 }
 
@@ -24,7 +28,9 @@ const authSlice = createSlice({
     initialState: state,
     reducers: {
         setCredentials: (state, action: PayloadAction<{ user: User }>) => {
-            const { user } = action.payload;
+            const { user } = action.payload; 
+            console.log("setCredentials trigrered")
+            console.log("user iz STATEA:", state.user);
             state.user = user       
         },
         logOut: (state) => {

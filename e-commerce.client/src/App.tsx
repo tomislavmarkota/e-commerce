@@ -1,31 +1,42 @@
-import { Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
+import { Link, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
 import './App.css';
 import BasicLayout from './layouts/BasicLayout';
 import Login from './features/auth/Login';
-import AuthLayout from './layouts/AuthLayout';
 import PersistLogin from './layouts/PersistLogin';
-
-
+import Authorize from './layouts/Authorize';
+import AdminComponent from './components/AdminComponent';
+import Users from './components/Users';
+import Dashboard from './components/Dashboard';
 
 function App() {
+    
     const router = createBrowserRouter(
         createRoutesFromElements(
             <Route element={<BasicLayout />}>
               
                 <Route path="login" element={<Login />} />
                 <Route path="/">
-                    <Route index element={<div>dashboard</div>} /> 
+                    <Route index element={<Dashboard/>} /> 
                 </Route>
-                <Route>
-                </Route>
+
                 <Route element={<PersistLogin />}>
-                    <Route element={<AuthLayout />}>
-                        <Route path="admin" element={<div>admin</div>} />
-                        <Route path="users" element={<div>admin</div>} />
-                    </Route>
-                </Route>
-            
+                    <Route path="auth" element={<div>
+                        <Link to={'/auth'}>GO BACK TO AUTH</Link>
+                        <Link to={"/admin"}>Admin route protected</Link>
+                        <Link to={"/"}>Dashboard</Link>
+                        <Link to={"/users"}>Users route protected</Link>
+                    </div>} />
+                        
+                        <Route path="users" element={<Users/>} />
+
+                 
+                        <Route element={<Authorize acceptedRoles={["ADMIN"]} />}>
+                            <Route path="admin" element={<AdminComponent />} />
+                        </Route>
+      
+          
               
+                </Route>
             </Route>
         )
     );
