@@ -9,5 +9,7 @@
         public string? RefreshToken { get; set; }
 
         public DateTime RefreshExpiry { get; set; }
+
+        public ICollection<UserRoleModel> UserRoles { get; set; }
     }
 }
