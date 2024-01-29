@@ -1,7 +1,7 @@
 import { Link, Route, RouterProvider, createBrowserRouter, createRoutesFromElements } from 'react-router-dom';
-import './App.css';
-import BasicLayout from './layouts/BasicLayout';
-import Login from './features/auth/Login';
+import './App.scss';
+import BasicLayout from './layouts/basicLayout/BasicLayout';
+import Login from './features/auth/Login/Login';
 import PersistLogin from './layouts/PersistLogin';
 import Authorize from './layouts/Authorize';
 import AdminComponent from './components/AdminComponent';

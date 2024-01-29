@@ -10,7 +10,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="src\app\api\" />
+    <Folder Include="src\components\input\" />
     <Folder Include="src\hooks\" />
-    <Folder Include="src\components\" />
+    <Folder Include="src\style\" />
   </ItemGroup>
 </Project>

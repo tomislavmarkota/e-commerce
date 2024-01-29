@@ -1,13 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useRef, useState, useEffect } from 'react'
-
-//import { useDispatch } from 'react-redux';
-//import { setCredentials } from './authSlice';
-import { useLoginMutation, useLazyUsersQuery } from '../auth/authApiSlice'
+import { useLoginMutation, useLazyUsersQuery } from '../authApiSlice'
 import { useDispatch, useSelector } from 'react-redux';
-import { selectCurrentUser, setCredentials } from './authSlice';
+import { selectCurrentUser, setCredentials } from '../authSlice';
 import { useNavigate } from 'react-router-dom';
+import LoginStyles from './Login.module.scss';
+import Input from '../../../components/input/Input';
 
 function Login() {
     const userRef = useRef<HTMLInputElement>();
@@ -59,18 +56,23 @@ function Login() {
         if (target.name === 'password') setPwd(target.value)
     }
 
-    if(isLoading) return <div>Loading...</div>
+    if (isLoading) return <div>Loading...</div>
+
+    const emailInputProps = { type: 'text', placeholder: 'Email', name: 'email', onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e) }
+
+    const pwInputProps = { type: 'text', placeholder: 'Password', name: 'password', onChange: (e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(e) }
+
+    const submitInputProps = { type: 'submit', value: "Sign In", className: LoginStyles.SubmitBtn }
 
     return (
-        <>
+        <div className={LoginStyles.LoginWrapper}>
             <div>login</div>
-            <form onSubmit={ (e) => void handleSubmit(e) }>
-                <input type="text" name="email" onChange={ handleInputChange } />
-                <input type="text" name="password" onChange={handleInputChange} />
-                <input type="submit" value="Login" />
+            <form className={LoginStyles.LoginForm} onSubmit={(e) => void handleSubmit(e)}>
+                <Input props={emailInputProps} />
+                <Input props={pwInputProps} />
+                <Input props={submitInputProps} />
             </form>
-            <button onClick={() => void handleGetUsersClick() }></button>
-        </>
+        </div>
        
     )
 }
