@@ -1,14 +1,15 @@
-import { Link } from "react-router-dom";
-import { selectCurrentUser } from "../features/auth/authSlice";
-import { useSelector } from "react-redux";
-
+import { useEffect, useState } from "react";
 function Dashboard() {
-    const user = useSelector(selectCurrentUser);
-    console.log("user from dashboard", user)
+    const [products, setProducts] = useState<[]>([]);
+
+
+    useEffect(() => {
+        fetch("https://localhost:7045/api/product/products").then((res) => res.json()).then((data: []) => setProducts(data)).catch((err) => console.log(err))
+    }, []);
+
     return (
         <div>
-            <p>Hello world!</p>
-            <Link to="/login">To login</Link>
+            <p>List of products</p>
       </div>
  
   );

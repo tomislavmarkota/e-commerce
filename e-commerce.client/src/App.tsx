@@ -7,6 +7,7 @@ import Authorize from './layouts/Authorize';
 import AdminComponent from './components/AdminComponent';
 import Users from './components/Users';
 import Dashboard from './components/Dashboard';
+import Products from './components/products/Products';
 
 function App() {
     
@@ -16,7 +17,7 @@ function App() {
               
                 <Route path="login" element={<Login />} />
                 <Route path="/">
-                    <Route index element={<Dashboard/>} /> 
+                    <Route index element={<Products />} /> 
                 </Route>
 
                 <Route element={<PersistLogin />}>
