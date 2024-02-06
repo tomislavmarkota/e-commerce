@@ -17,7 +17,19 @@ namespace e_commerce.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure many-to-many relationship
+            modelBuilder.Entity<ProductCategories>()
+               .HasKey(pc => new { pc.ProductId, pc.CategoryId });
+
+            modelBuilder.Entity<ProductCategories>()
+                .HasOne(pc => pc.Product)
+                .WithMany(p => p.ProductCategories)
+                .HasForeignKey(pc => pc.ProductId);
+
+            modelBuilder.Entity<ProductCategories>()
+                .HasOne(pc => pc.Category)
+                .WithMany(c => c.ProductCategories)
+                .HasForeignKey(pc => pc.CategoryId);
+
             modelBuilder.Entity<UserRoleModel>()
                 .HasKey(ur => new { ur.UserId, ur.RoleId });
 
@@ -46,6 +58,9 @@ namespace e_commerce.Server.Data
         public DbSet<User> Users { get; set; }
         public DbSet<RoleModel> Roles { get; set; }
         public DbSet<UserRoleModel> UserRoles { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<ProductCategories> ProductCategories { get; set; }
 
 
         private void SeedUsers(ModelBuilder modelBuilder)
