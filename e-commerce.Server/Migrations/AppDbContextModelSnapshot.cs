@@ -66,15 +66,12 @@ namespace e_commerce.Server.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("e_commerce.Server.Models.ProductCategories", b =>
+            modelBuilder.Entity("e_commerce.Server.Models.ProductCategory", b =>
                 {
                     b.Property<int>("ProductId")
                         .HasColumnType("integer");
 
                     b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Id")
                         .HasColumnType("integer");
 
                     b.HasKey("ProductId", "CategoryId");
@@ -149,14 +146,14 @@ namespace e_commerce.Server.Migrations
                         {
                             Id = 1,
                             Email = "user@user.com",
-                            Password = "$2a$11$2DbyxVT3zlZBNeu48/ffluxvwZWLp.AUqALbm6.GVikHc/hWjUNnG",
+                            Password = "$2a$11$yiMM/hLI5GWdaMPe7uBwfetCoS8CZBst.QBHEo3Xm46f7Q8wK/dqy",
                             RefreshExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2,
                             Email = "admin@admin.com",
-                            Password = "$2a$11$lKN1EjsAve04162ljtiaQeDbDcdbK94eRFsMUF7d3cTIK9PJUf60G",
+                            Password = "$2a$11$rhFBqYVor3eAVOmOAhMpKeZZi/qNZgxEyPy.pl1ieuJgId1vAClAO",
                             RefreshExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -188,7 +185,7 @@ namespace e_commerce.Server.Migrations
                         });
                 });
 
-            modelBuilder.Entity("e_commerce.Server.Models.ProductCategories", b =>
+            modelBuilder.Entity("e_commerce.Server.Models.ProductCategory", b =>
                 {
                     b.HasOne("e_commerce.Server.Models.Category", "Category")
                         .WithMany("ProductCategories")

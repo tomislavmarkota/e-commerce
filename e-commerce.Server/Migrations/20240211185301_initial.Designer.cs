@@ -12,8 +12,8 @@ using e_commerce.Server.Data;
 namespace e_commerce.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240114174029_user-roles")]
-    partial class userroles
+    [Migration("20240211185301_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,65 @@ namespace e_commerce.Server.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("e_commerce.Server.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("e_commerce.Server.Models.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("e_commerce.Server.Models.ProductCategory", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProductId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProductCategories");
+                });
 
             modelBuilder.Entity("e_commerce.Server.Models.RoleModel", b =>
                 {
@@ -90,14 +149,14 @@ namespace e_commerce.Server.Migrations
                         {
                             Id = 1,
                             Email = "user@user.com",
-                            Password = "$2a$11$Psd7sieqLvHWsYNQmnMQB.3FvTcnirSu7Tk.sMKzIVGH0D885bCT2",
+                            Password = "$2a$11$yiMM/hLI5GWdaMPe7uBwfetCoS8CZBst.QBHEo3Xm46f7Q8wK/dqy",
                             RefreshExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             Id = 2,
                             Email = "admin@admin.com",
-                            Password = "$2a$11$5YxFxEhSGskZ0SRKBHrxa.dNQSIO4sAJMtV4D.jECjgWWZ.9ewsly",
+                            Password = "$2a$11$rhFBqYVor3eAVOmOAhMpKeZZi/qNZgxEyPy.pl1ieuJgId1vAClAO",
                             RefreshExpiry = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
@@ -129,6 +188,25 @@ namespace e_commerce.Server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("e_commerce.Server.Models.ProductCategory", b =>
+                {
+                    b.HasOne("e_commerce.Server.Models.Category", "Category")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("e_commerce.Server.Models.Product", "Product")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("e_commerce.Server.Models.UserRoleModel", b =>
                 {
                     b.HasOne("e_commerce.Server.Models.RoleModel", "Role")
@@ -146,6 +224,16 @@ namespace e_commerce.Server.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("e_commerce.Server.Models.Category", b =>
+                {
+                    b.Navigation("ProductCategories");
+                });
+
+            modelBuilder.Entity("e_commerce.Server.Models.Product", b =>
+                {
+                    b.Navigation("ProductCategories");
                 });
 
             modelBuilder.Entity("e_commerce.Server.Models.RoleModel", b =>
