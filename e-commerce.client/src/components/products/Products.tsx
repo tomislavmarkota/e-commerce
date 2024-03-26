@@ -2,21 +2,35 @@ import { useEffect, useState } from 'react';
 import ProductStyles from './Products.module.scss'
 import Card from '../Card/Card';
 
+
+type ProductPaginationDTO = {
+    products: Product[];
+    totalItems: number;
+    totalPages: number;
+}
+
+type Product = {
+    id: number;
+    name: string;
+    price: number;
+    description: string;
+    quantity: number
+}
 function Products() {
-    const [products, setProducts] = useState<[]>([]);
+    const [data, setData] = useState<ProductPaginationDTO | undefined>();
 
 
     useEffect(() => {
-        fetch("https://localhost:7045/api/product").then((res) => res.json()).then((data: []) => setProducts(data)).catch((err) => console.log(err))
+        fetch("https://localhost:7045/api/Product?categoryId=1&page=1&pageSize=10").then((res) => res.json()).then((data: ProductPaginationDTO) => setData(data)).catch((err) => console.log(err))
     }, []);
 
 
-    if (products.length === 0) return <h1>Loading...</h1>
+    if (!data) return <h1>Loading...</h1>
 
     return (
         <div className={ProductStyles.ProductContainer}>
             {
-                products.map((product) => {
+                data.products.map((product) => {
                     return (
                         <Card key={product.id} name={product.name} />
                     );
